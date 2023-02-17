@@ -5,6 +5,7 @@ from install_certs import install_acme, install_certs
 from install_nginx import install_nginx
 from install_xray import (download_base_config, install_xray,
                           modify_base_config, restart_service)
+from client_tools import generate_client_links
 
 log = CLogger("main", file_log_level=1, console_log_level=1)
 
@@ -23,3 +24,4 @@ if __name__ == "__main__":
     base_config = download_base_config()
     modify_base_config(base_config=base_config)
     restart_service("xray")
+    generate_client_links()
