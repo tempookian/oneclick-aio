@@ -39,12 +39,22 @@ def modify_base_config(base_config: dict):
     domain_config.read("domains.ini")
     config_id = str(uuid.uuid4())
     config_pw = generate_random_password()
+    with open(".confidential", "w") as outfile:
+        outfile.write(config_id + "\n")
+        outfile.write(config_pw + "\n")
 
     # entry_point
     vless_inbound = next(
         i for i in base_config["inbounds"] if i["tag"].lower() == "Vless-TCP-XTLS".lower())
     for client in vless_inbound["settings"]["clients"]:
         client["id"] = config_id
+        
+    for inbound in base_config["inbounds"]:
+        if "settings" in inbound:
+            if "clients" in inbound["settings"]:
+                for client in inbound["settings"]["clients"]:
+                    if "id" in client:
+                        client["id"] = config_id
 
     tls_domains = [domain_config[s]["address"] for s in domain_config.sections(
     ) if domain_config.get(s, "issue_cert", fallback=False)]
