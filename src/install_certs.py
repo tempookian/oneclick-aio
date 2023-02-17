@@ -73,6 +73,7 @@ def install_acme():
                                "/usr/bin/socat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     process.communicate()
 
+    
     log.debug("Installing acme")
     process = subprocess.Popen(
         ["curl", "https://get.acme.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -129,7 +130,9 @@ def issue_cert(domain):
     stdout, stderr = process.communicate()
     # log.debug(stdout.decode("utf8"))
     if stderr:
-        log.error(stderr.decode("utf8"))
+        log.error(stderr.decode("utf8"), domain)
+        log.error("Please make sure the domain is properly configured in your nameserver!", domain)
+        exit(0)
 
 
 def install_cert(domain: str):
@@ -154,6 +157,7 @@ def install_cert(domain: str):
     # Print the standard error if it is not empty
     if stderr:
         print(stderr.decode("utf8"))
+        exit(0)
 
 
 
