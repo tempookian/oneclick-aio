@@ -3,7 +3,7 @@ import subprocess
 from client_tools import generate_client_links
 from clog import CLogger
 from install_certs import install_acme, install_certs
-from install_nginx import install_nginx
+from install_nginx import get_default_conf, install_nginx
 from install_xray import (
     download_base_config,
     install_xray,
@@ -27,6 +27,7 @@ if __name__ == "__main__":
     install_acme()
     install_certs("domains.ini")
     install_nginx()
+    get_default_conf()
     install_xray()
     base_config = download_base_config()
     modify_base_config(base_config=base_config)
