@@ -12,8 +12,6 @@ def install_nginx():
         raise PermissionError("This script must be run as root.")
 
     try:
-        # Adding correct repository
-        subprocess.run(["add-apt-repository", "-y", "ppa:nginx/stable"], check=True)
         subprocess.run(["apt-get", "update"], check=True)
         # Installing nginx package
         subprocess.run(["apt-get", "install", "-y", "nginx"], check=True)
