@@ -12,7 +12,7 @@ CLIENT_LINK_TEMPLATES = dict(
     TROJAN_GRPC_TEMPLATE="trojan://{password}@{entryaddress}:443?security=tls&type=grpc&serviceName=trgrpc#Trojan-gRPC",
     TROJAN_H2_TEMPLATE="trojan://{password}@{entryaddress}:443?sni={sni}&security=tls&type=http&path=/trh2#Trojan-H2",
     VLESS_TCP_TEMPLATE="vless://{uuid}@{entryaddress}:443?security=tls&type=tcp#Vless-TCP",
-    VLESS_WS_TEMPLATE="vless://{uuid}@{entryaddress}:443?security=tls&type=ws?ed=2048&path=/vlws#Vless-WS",
+    VLESS_WS_TEMPLATE="vless://{uuid}@{entryaddress}:443?security=tls&type=ws&path=/vlws?ed%3D204&host={entryaddress}#Vless-WS",
     VLESS_GRPC_TEMPLATE="vless://{uuid}@{entryaddress}:443?security=tls&type=grpc&serviceName=vlgrpc#Vless-gRPC",
     VLESS_H2_TEMPLATE="vless://{uuid}@{entryaddress}:443?sni={sni}&security=tls&type=http&path=/vlh2#Vless-H2",
 )
