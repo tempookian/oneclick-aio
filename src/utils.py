@@ -10,7 +10,7 @@ def change_ownership(path: str, user: str) -> None:
     """Changes the ownership of all files inside a ``path`` to a ``user``
 
     Args:
-        path (str): the path 
+        path (str): the path
         user (str): the user
     """
     for root, _, files in os.walk(path):
@@ -35,7 +35,9 @@ def generate_random_email(username_len: int = 8, domain_len: int = 8) -> str:
     return email
 
 
-def generate_random_password(use_upper: bool = True, use_digits: bool = True, password_len: bool = 16) -> str:
+def generate_random_password(
+    use_upper: bool = True, use_digits: bool = True, password_len: bool = 16
+) -> str:
     """Generates a random passowrd
 
     Args:
@@ -52,5 +54,5 @@ def generate_random_password(use_upper: bool = True, use_digits: bool = True, pa
         chars += string.ascii_uppercase
     if use_digits:
         chars += string.digits
-    password = ''.join(random.choice(chars) for _ in range(password_len))
+    password = "".join(random.choice(chars) for _ in range(password_len))
     return password

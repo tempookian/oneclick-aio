@@ -1,5 +1,6 @@
-import subprocess
 import os
+import subprocess
+
 
 def install_nginx():
     """
@@ -8,7 +9,7 @@ def install_nginx():
     Throws an error if the package is not found or if the user is not root.
     """
     if os.geteuid() != 0:
-            raise PermissionError("This script must be run as root.")
+        raise PermissionError("This script must be run as root.")
 
     try:
         # Adding correct repository

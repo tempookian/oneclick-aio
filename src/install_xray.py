@@ -2,14 +2,13 @@ import configparser
 import subprocess
 import urllib.request
 import uuid
-from utils import generate_random_password
 
 import json5
 
 from clog import CLogger
+from utils import generate_random_password
 
 log = CLogger("install_xray", console_log_level=1, file_log_level=1)
-
 
 
 def download_base_config():
@@ -45,10 +44,13 @@ def modify_base_config(base_config: dict):
 
     # entry_point
     vless_inbound = next(
-        i for i in base_config["inbounds"] if i["tag"].lower() == "Vless-TCP-XTLS".lower())
+        i
+        for i in base_config["inbounds"]
+        if i["tag"].lower() == "Vless-TCP-XTLS".lower()
+    )
     for client in vless_inbound["settings"]["clients"]:
         client["id"] = config_id
-        
+
     for inbound in base_config["inbounds"]:
         if "settings" in inbound:
             if "clients" in inbound["settings"]:
@@ -56,13 +58,16 @@ def modify_base_config(base_config: dict):
                     if "id" in client:
                         client["id"] = config_id
 
-    tls_domains = [domain_config[s]["address"] for s in domain_config.sections(
-    ) if domain_config.get(s, "issue_cert", fallback=False)]
+    tls_domains = [
+        domain_config[s]["address"]
+        for s in domain_config.sections()
+        if domain_config.get(s, "issue_cert", fallback=False)
+    ]
     vless_inbound["streamSettings"]["tlsSettings"]["certificates"] = [
         dict(
             ocspStapling=3600,
             certificateFile=f"/keys/{domain}.pem",
-            keyFile=f"/keys/{domain}-key.pem"
+            keyFile=f"/keys/{domain}-key.pem",
         )
         for domain in tls_domains
     ]
@@ -89,13 +94,7 @@ def modify_base_config(base_config: dict):
                 inbound["settings"]["password"] = config_pw
 
     with open("/usr/local/etc/xray/config.json", "w") as fout:
-        json5.dump(
-            base_config,
-            fout,
-            indent=2,
-            quote_keys=True,
-            trailing_commas=False
-        )
+        json5.dump(base_config, fout, indent=2, quote_keys=True, trailing_commas=False)
 
 
 def load_config_from_file(filepath="base_server.json"):
@@ -110,25 +109,34 @@ def install_xray():
     """
     try:
         subprocess.check_call(["sudo", "apt", "install", "socat", "-y"])
-        subprocess.check_call(["curl", "-o", "install-release.sh", "-L",
-                              "https://github.com/XTLS/Xray-install/raw/main/install-release.sh"])
         subprocess.check_call(
-            ["sudo", "bash", "install-release.sh", "install"])
+            [
+                "curl",
+                "-o",
+                "install-release.sh",
+                "-L",
+                "https://github.com/XTLS/Xray-install/raw/main/install-release.sh",
+            ]
+        )
+        subprocess.check_call(["sudo", "bash", "install-release.sh", "install"])
         print("Xray has been installed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
         exit(1)
 
 
-
 def restart_service(service_name):
-    result = subprocess.run(['systemctl', 'restart', service_name],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(
+        ["systemctl", "restart", service_name],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     if result.returncode == 0:
         log.info(f"Service '{service_name}' restarted successfully")
     else:
         log.error(
-            f"Failed to restart service '{service_name}'. Error: {result.stderr.decode()}")
+            f"Failed to restart service '{service_name}'. Error: {result.stderr.decode()}"
+        )
 
 
 if __name__ == "__main__":

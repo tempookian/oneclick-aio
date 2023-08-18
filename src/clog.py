@@ -90,7 +90,6 @@ class CLogger(object):
         file_log_level=25,
         show_task_name=False,
     ):
-
         module = module.lower()
 
         self._logger = logging.getLogger(module)
@@ -160,7 +159,7 @@ class CLogger(object):
             prefix = self._prefix
         msg = msg.replace("%", "%%")
         self._logger.error(msg, {"prefix": prefix})
-        
+
     def exception(self, e):
         self._logger.exception(e)
 

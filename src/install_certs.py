@@ -19,8 +19,11 @@ def read_domains(filename: str) -> list:
     """
     conf = configparser.ConfigParser()
     conf.read(filename)
-    domains = [conf[s]["address"]
-               for s in conf.sections() if conf.get(s, "issue_cert", fallback=False)]
+    domains = [
+        conf[s]["address"]
+        for s in conf.sections()
+        if conf.get(s, "issue_cert", fallback=False)
+    ]
 
     return domains
 
@@ -34,7 +37,9 @@ def get_account_email():
     str or None: The email address if the file exists and can be parsed, otherwise None.
     """
     try:
-        with open("/root/.acme.sh/ca/acme.zerossl.com/v2/DV90/account.json", "r") as infile:
+        with open(
+            "/root/.acme.sh/ca/acme.zerossl.com/v2/DV90/account.json", "r"
+        ) as infile:
             # Load the contents of the file into a dictionary
             content = json.load(infile)
 
@@ -64,41 +69,54 @@ def install_acme():
         None
     """
     log.debug("Installing curl, socat, and cron...")
-    process = subprocess.Popen(["sudo", "apt", "install", "curl", "socat",
-                               "cron", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["sudo", "apt", "install", "curl", "socat", "cron", "-y"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     process.communicate()
 
     log.debug("set cap to give access to ports for non-root users...")
-    process = subprocess.Popen(["sudo", "setcap", "'cap_net_bind_service=+ep'",
-                               "/usr/bin/socat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["sudo", "setcap", "'cap_net_bind_service=+ep'", "/usr/bin/socat"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     process.communicate()
 
-    
     log.debug("Installing acme")
     process = subprocess.Popen(
-        ["curl", "https://get.acme.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ["curl", "https://get.acme.sh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     process = subprocess.Popen(
-        ["bash"], stdin=process.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ["bash"], stdin=process.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     process.communicate()
 
     log.debug("Setting default ca to letsencrypt")
-    process = subprocess.Popen(["/root/.acme.sh/acme.sh", "--set-default-ca" "--server letsencrypt"],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["/root/.acme.sh/acme.sh", "--set-default-ca" "--server letsencrypt"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     process.communicate()
 
     log.debug("Creating /keys/ folder")
     process = subprocess.Popen(
-        ["mkdir", "-p", "/keys/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ["mkdir", "-p", "/keys/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     process.communicate()
 
     log.debug("Setting ownership of /keys/ to nobody")
     process = subprocess.Popen(
-        ["chown", "nobody", "/keys/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ["chown", "nobody", "/keys/"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     process.communicate()
 
     log.debug("Setting access level to 444 for /keys/")
     process = subprocess.Popen(
-        ["chmod", "444", "/keys/*"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ["chmod", "444", "/keys/*"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     process.communicate()
 
 
@@ -115,7 +133,8 @@ def register_account(account_email):
 
     # Use the subprocess library to run the acme.sh tool with the given options
     process = subprocess.Popen(
-        ["/root/.acme.sh/acme.sh", "--register-account", "-m", account_email])
+        ["/root/.acme.sh/acme.sh", "--register-account", "-m", account_email]
+    )
     stdout, stderr = process.communicate()
 
     # Log the standard error if it is not empty
@@ -125,13 +144,19 @@ def register_account(account_email):
 
 def issue_cert(domain):
     log.debug("Issuing cert for domain", domain)
-    process = subprocess.Popen(["/root/.acme.sh/acme.sh", "--issue", "-d",
-                               domain, "--standalone"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["/root/.acme.sh/acme.sh", "--issue", "-d", domain, "--standalone"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     stdout, stderr = process.communicate()
     # log.debug(stdout.decode("utf8"))
     if stderr:
         log.error(stderr.decode("utf8"), domain)
-        log.error("Please make sure the domain is properly configured in your nameserver!", domain)
+        log.error(
+            "Please make sure the domain is properly configured in your nameserver!",
+            domain,
+        )
         exit(0)
 
 
@@ -145,20 +170,26 @@ def install_cert(domain: str):
     None
     """
     # Use the subprocess library to run the acme.sh tool with the given options
-    process = subprocess.Popen([
-        "/root/.acme.sh/acme.sh",
-        "--installcert",
-        "-d", domain,
-        "--key-file", f"/keys/{domain}-key.pem",
-        "--fullchain-file", f"/keys/{domain}.pem"],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        [
+            "/root/.acme.sh/acme.sh",
+            "--installcert",
+            "-d",
+            domain,
+            "--key-file",
+            f"/keys/{domain}-key.pem",
+            "--fullchain-file",
+            f"/keys/{domain}.pem",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     stdout, stderr = process.communicate()
 
     # Print the standard error if it is not empty
     if stderr:
         print(stderr.decode("utf8"))
         exit(0)
-
 
 
 def install_certs(dom_file: str = "domains.ini"):
@@ -190,8 +221,4 @@ def install_certs(dom_file: str = "domains.ini"):
         install_cert(domain)
 
     log.debug("Setting ownership of /keys/ to noboyd")
-    change_ownership(
-        path="/keys/",
-        user="nobody"
-    )
-
+    change_ownership(path="/keys/", user="nobody")
