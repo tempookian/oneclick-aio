@@ -32,4 +32,6 @@ if __name__ == "__main__":
     base_config = download_base_config()
     modify_base_config(base_config=base_config)
     restart_service("xray")
+    restart_service("nginx")
+    restart_service("xray")
     generate_client_links()
