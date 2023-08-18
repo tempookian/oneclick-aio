@@ -4,6 +4,10 @@ import subprocess
 
 import requests
 
+from clog import CLogger
+
+log = CLogger("install_nginx", file_log_level=1, console_log_level=1)
+
 
 def install_nginx():
     """
@@ -35,7 +39,10 @@ def get_default_conf():
     if r.status_code == 200:
         config = r.content.decode()
         config = config.replace("example.com", domains_str)
-        print(config)
+        with open("/etc/nginx/conf.d/vpn.conf", "w") as outfile:
+            outfile.write(config)
+    else:
+        log.error("Failed to download default nginx configuration file.")
 
 
 if __name__ == "__main__":
